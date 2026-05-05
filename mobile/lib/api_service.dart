@@ -2,12 +2,18 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.1.100:3000';
+  static const String baseUrl = 'http://192.168.1.2:3000';
+  
+  static Map<String, String> get _headers => {
+    'Authorization': 'admin',
+    'Content-Type': 'application/json',
+  };
   
   static Future<Map<String, dynamic>> getSystemInfo() async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/system'),
+        headers: _headers,
       ).timeout(const Duration(seconds: 10));
       
       if (response.statusCode == 200) {
@@ -24,6 +30,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/processes'),
+        headers: _headers,
       ).timeout(const Duration(seconds: 10));
       
       if (response.statusCode == 200) {
@@ -40,6 +47,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/network'),
+        headers: _headers,
       ).timeout(const Duration(seconds: 10));
       
       if (response.statusCode == 200) {
@@ -56,6 +64,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/processes/$processId/kill'),
+        headers: _headers,
       ).timeout(const Duration(seconds: 10));
       
       if (response.statusCode == 200) {
@@ -72,6 +81,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/health'),
+        headers: _headers,
       ).timeout(const Duration(seconds: 5));
       
       if (response.statusCode == 200) {

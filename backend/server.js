@@ -5,10 +5,27 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// middleware
 app.use(cors());
 app.use(express.json());
 
-// Mock data
+// auth middleware
+app.use((req, res, next) => {
+  const auth = req.headers.authorization;
+  if (auth !== 'admin') {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+      timestamp: new Date().toISOString()
+    });
+  }
+  next();
+});
+
+/* =========================
+   MOCK DATA (SAFE VERSION)
+========================= */
+
 const systemInfo = {
   cpu: {
     usage: 45.2,
@@ -35,15 +52,18 @@ const processes = [
   { id: 9012, name: 'explorer.exe', cpu: 3.1, memory: 128, status: 'running' }
 ];
 
+/* ❌ FIX: jangan hardcode IP */
 const networkInfo = {
   interface: 'Ethernet',
-  ip: '192.168.1.100',
   upload: 1024,
   download: 2048,
   latency: 12
 };
 
-// API Routes
+/* =========================
+   API ROUTES
+========================= */
+
 app.get('/api/system', (req, res) => {
   res.json({
     success: true,
@@ -70,6 +90,7 @@ app.get('/api/network', (req, res) => {
 
 app.post('/api/processes/:id/kill', (req, res) => {
   const { id } = req.params;
+
   res.json({
     success: true,
     message: `Process ${id} killed successfully`,
@@ -86,15 +107,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    message: 'Internal server error',
-    timestamp: new Date().toISOString()
-  });
-});
+/* =========================
+   ERROR HANDLING
+========================= */
 
 app.use((req, res) => {
   res.status(404).json({
@@ -104,6 +119,10 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+/* =========================
+   START SERVER (IMPORTANT FIX)
+========================= */
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
